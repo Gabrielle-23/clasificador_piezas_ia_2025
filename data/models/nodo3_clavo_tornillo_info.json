@@ -1,0 +1,19 @@
+{
+  "features": [
+    "aspect_ratio",
+    "extent",
+    "circularity",
+    "num_vertices_rdp",
+    "hu2"
+  ],
+  "cluster_to_class": {
+    "0": "clavo",
+    "1": "tornillo"
+  },
+  "class_labels": [
+    "clavo",
+    "tornillo"
+  ],
+  "num_prototipos": 6,
+  "prototype_selection": "3_closest_to_class_centroid"
+}

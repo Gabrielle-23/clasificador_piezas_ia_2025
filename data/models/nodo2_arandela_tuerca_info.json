@@ -1,0 +1,17 @@
+{
+  "features": [
+    "hole_area_ratio",
+    "num_vertices_rdp",
+    "circularity",
+    "hu2"
+  ],
+  "cluster_to_class": {
+    "0": "arandela",
+    "1": "tuerca"
+  },
+  "class_labels": [
+    "arandela",
+    "tuerca"
+  ],
+  "prototype_selection": "closest_to_class_centroid"
+}
