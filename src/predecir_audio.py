@@ -107,7 +107,7 @@ if __name__ == "__main__":
         model_path=MODEL_PATH,
         scaler_path=SCALER_PATH,
         feature_names_path=FEATURE_NAMES_PATH,
-        tmp_preprocessed="tmp_preprocessed.wav",
+        tmp_preprocessed="data_voz/tmp_preprocessed.wav",
         sample_rate=16000,
         n_mfcc=13
     )
