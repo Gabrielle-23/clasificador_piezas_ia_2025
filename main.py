@@ -28,7 +28,7 @@ from src.preprocess_audio import preprocess_audio_file
 CARPETA_MUESTRA = "data/muestras"
 
 # Audio y modelos del KNN de voz
-INPUT_WAV          = "data_voz/pruebas/4.wav"   # AUDIO RASO ('contar', 'proporcion' o 'salir')
+INPUT_WAV          = "data_voz/pruebas/comando.wav"   # AUDIO RASO ('contar', 'proporcion' o 'salir')
 TMP_PREPROCESSED   = "data_voz/tmp_preprocessed.wav"  
 
 # archivo temporal preprocesado
