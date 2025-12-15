@@ -2,7 +2,9 @@
 import os
 import re
 from collections import Counter
+from typing import Optional, List, Tuple, Dict, Any
 import warnings
+
 warnings.filterwarnings("ignore", category=UserWarning)
 
 import numpy as np
@@ -12,8 +14,9 @@ import joblib
 # IMPORTS DEL PROYECTO (MANUAL)
 # ================================
 
-# K-Means jerárquico MANUAL (mismas salidas que antes: (clase_final, info))
-from src.predecir_manual import predecir
+# ✅ Visión: KMeans k=4 (manual) — reemplaza el jerárquico anterior
+# Nota: este archivo debe existir en tu proyecto (según tu upload: predecir_k4_manual.py)
+from src.predecir_k4_manual import predecir_k4
 
 # Bayes (igual que antes)
 from src.bayes import estimar_posterior_secuencial
@@ -49,7 +52,7 @@ N_MFCC      = 13
 # UTILIDADES
 # ================================
 
-def _extraer_numero(nombre_archivo: str) -> int | None:
+def _extraer_numero(nombre_archivo: str) -> Optional[int]:
     """
     Devuelve el número del filename si es del estilo '12.wav' o '12_algo.wav'.
     Para tu caso ideal '12.wav'. Si no encuentra número, devuelve None.
@@ -61,7 +64,7 @@ def _extraer_numero(nombre_archivo: str) -> int | None:
     return int(m.group(1))
 
 
-def listar_audios_ordenados(carpeta: str):
+def listar_audios_ordenados(carpeta: str) -> List[str]:
     """
     Lista los .wav de la carpeta y los ordena por número ascendente.
     Si hay audios sin número, los deja al final (orden alfabético).
@@ -73,8 +76,8 @@ def listar_audios_ordenados(carpeta: str):
     if not wavs:
         raise FileNotFoundError(f"No hay .wav en: {carpeta}")
 
-    con_num = []
-    sin_num = []
+    con_num: List[Tuple[int, str]] = []
+    sin_num: List[str] = []
 
     for f in wavs:
         n = _extraer_numero(f)
@@ -91,11 +94,11 @@ def listar_audios_ordenados(carpeta: str):
 
 
 # ================================
-# VISIÓN (IMÁGENES)
+# VISIÓN (IMÁGENES) — KMeans k=4
 # ================================
 
-def clasificar_muestra_imagenes(carpeta_muestra: str):
-    piezas = []
+def clasificar_muestra_imagenes(carpeta_muestra: str) -> List[str]:
+    piezas: List[str] = []
 
     if not os.path.isdir(carpeta_muestra):
         print(f"[ERROR] La carpeta de imágenes no existe: {carpeta_muestra}")
@@ -106,14 +109,15 @@ def clasificar_muestra_imagenes(carpeta_muestra: str):
         print(f"[ADVERTENCIA] La carpeta {carpeta_muestra} está vacía.")
         return piezas
 
-    print("\n=== CLASIFICACIÓN DE IMÁGENES (MANUAL) ===")
+    print("\n=== CLASIFICACIÓN DE IMÁGENES (KMeans k=4 MANUAL) ===")
     for nombre_archivo in archivos:
         if not nombre_archivo.lower().endswith((".jpg", ".jpeg", ".png")):
             continue
 
         ruta_img = os.path.join(carpeta_muestra, nombre_archivo)
         try:
-            clase, _info = predecir(ruta_img)
+            clase, _info = predecir_k4(ruta_img)
+            clase = str(clase).strip().lower()
             piezas.append(clase)
             print(f"[VISION] {nombre_archivo} -> {clase}")
         except Exception as e:
@@ -123,7 +127,7 @@ def clasificar_muestra_imagenes(carpeta_muestra: str):
 
 
 # ================================
-# AUDIO (VOZ)
+# AUDIO (VOZ) — KNN manual
 # ================================
 
 def predecir_comando_desde_wav(
@@ -134,7 +138,7 @@ def predecir_comando_desde_wav(
     tmp_preprocessed: str = TMP_PREPROCESSED,
     sample_rate: int = SAMPLE_RATE,
     n_mfcc: int = N_MFCC,
-):
+) -> Tuple[str, Optional[Dict[str, float]]]:
     """
     Devuelve (comando, proba_dict).
     Usa KNN MANUAL entrenado en data_voz/models_manual.
@@ -163,21 +167,29 @@ def predecir_comando_desde_wav(
         n_mfcc=n_mfcc,
     )
 
-    # 3) Orden columnas
+    # 3) Orden columnas (y validación)
     feature_names = joblib.load(feature_names_path)
+
+    missing = [f for f in feature_names if f not in feats]
+    if missing:
+        raise ValueError(
+            f"Faltan features en la predicción: {missing}. "
+            f"Revisá que el extractor de features coincida con el usado en entrenamiento."
+        )
+
+    # 4) Vector + escalar + predecir
     x_vec = np.array([feats[name] for name in feature_names], dtype=float).reshape(1, -1)
 
-    # 4) Escalar + predecir
     scaler = joblib.load(scaler_path)
     knn = joblib.load(model_path)
 
     x_scaled = scaler.transform(x_vec)
     predicted_label = knn.predict(x_scaled)[0]
 
-    proba_dict = None
+    proba_dict: Optional[Dict[str, float]] = None
     if hasattr(knn, "predict_proba") and hasattr(knn, "classes_"):
         proba = knn.predict_proba(x_scaled)[0]
-        proba_dict = {str(c): float(p) for c, p in zip(knn.classes_, proba)}
+        proba_dict = {str(c).strip().lower(): float(p) for c, p in zip(knn.classes_, proba)}
 
     return str(predicted_label).strip().lower(), proba_dict
 
@@ -186,7 +198,7 @@ def predecir_comando_desde_wav(
 # ACCIONES (CONTAR / PROPORCION / SALIR)
 # ================================
 
-def mostrar_conteo_piezas(piezas):
+def mostrar_conteo_piezas(piezas: List[str]) -> None:
     if not piezas:
         print("[ADVERTENCIA] No hay piezas para contar.")
         return
@@ -198,7 +210,7 @@ def mostrar_conteo_piezas(piezas):
     print("======================================\n")
 
 
-def mostrar_estimacion_bayes(piezas):
+def mostrar_estimacion_bayes(piezas: List[str]) -> None:
     if not piezas:
         print("[ADVERTENCIA] No hay piezas en la muestra para estimar la caja.")
         return
@@ -213,10 +225,12 @@ def mostrar_estimacion_bayes(piezas):
     print("=================================================\n")
 
 
-def ejecutar_accion(piezas, comando):
+def ejecutar_accion(piezas: List[str], comando: str) -> bool:
     """
     Devuelve True si hay que salir.
     """
+    comando = (comando or "").strip().lower()
+
     if comando == "contar":
         mostrar_conteo_piezas(piezas)
         return False
@@ -240,7 +254,7 @@ def ejecutar_accion(piezas, comando):
 # MAIN
 # ================================
 
-def main():
+def main() -> None:
     print("==============================================")
     print("  AGENTE INTELIGENTE (MANUAL) - AUDIOS EN LISTA")
     print("==============================================\n")

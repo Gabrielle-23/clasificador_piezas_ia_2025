@@ -1,0 +1,30 @@
+{
+  "features": [
+    "aspect_ratio",
+    "extent",
+    "solidity",
+    "circularity",
+    "num_holes",
+    "hole_area_ratio",
+    "num_vertices_rdp",
+    "vertices_perimeter_ratio",
+    "hu1",
+    "hu2",
+    "hu3"
+  ],
+  "cluster_to_class": {
+    "0": "clavo",
+    "1": "tuerca",
+    "2": "arandela",
+    "3": "tornillo"
+  },
+  "classes_orden": [
+    "arandela",
+    "clavo",
+    "tornillo",
+    "tuerca"
+  ],
+  "csv_path": "data/features/features.csv",
+  "random_state": 42,
+  "nota": "Modelo KMeans k=4 manual (sin sklearn)."
+}

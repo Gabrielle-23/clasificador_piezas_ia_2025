@@ -1,0 +1,13 @@
+Matriz de confusión (filas=real, columnas=pred):
+[[40  0  0  0]
+ [ 0 36  4  0]
+ [ 0  4 36  0]
+ [ 1  0  0 39]]
+
+Reporte:
+arandela    precision=0.98  recall=1.00  f1=0.99  support=40
+clavo       precision=0.90  recall=0.90  f1=0.90  support=40
+tornillo    precision=0.90  recall=0.90  f1=0.90  support=40
+tuerca      precision=1.00  recall=0.97  f1=0.99  support=40
+
+accuracy=0.9437
